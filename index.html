@@ -15,12 +15,16 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Three.js & GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <!-- Star Background Canvas -->
-    <canvas id="star-canvas"></canvas>
+    <!-- 3D Background Container -->
+    <div id="canvas-container"></div>
 
     <!-- Navigation -->
     <nav class="navbar">
@@ -368,6 +372,36 @@
                             <span class="tag">Dart</span>
                             <span class="tag">Flutter</span>
                             <span class="tag">AI Chatbot</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Project 5: DeepFake Detector -->
+                <article class="project-card">
+                    <div class="project-image">
+                        <div class="project-overlay">
+                            <div class="project-links">
+                                <a href="https://github.com/not-umesh/DeepFakeDetector" target="_blank"
+                                    class="project-link">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="project-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">DeepFake Detector</h3>
+                        <p class="project-description">
+                            AI-powered web application that detects deepfake media with advanced security features
+                            including rate limiting, input validation, and secure API integration for accurate analysis.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">Python</span>
+                            <span class="tag">Flask</span>
+                            <span class="tag">AI/ML</span>
+                            <span class="tag">Security</span>
                         </div>
                     </div>
                 </article>

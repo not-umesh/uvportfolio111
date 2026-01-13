@@ -1,127 +1,375 @@
 /* ============================================
-   UMESH VERMA PORTFOLIO - JAVASCRIPT
+   UMESH VERMA PORTFOLIO - HOLOGRAPHIC TVS APACHE THEME
    ============================================ */
 
-// Wait for DOM to load
 document.addEventListener('DOMContentLoaded', () => {
-    initStarField();
+    init3DScene();
     initTypingEffect();
     initNavbar();
-    initScrollReveal();
+    initSmoothScrollAnimations();
     initSmoothScroll();
 });
 
 /* ============================================
-   STAR FIELD ANIMATION
+   THREE.JS - HOLOGRAPHIC APACHE LOGO SCENE
    ============================================ */
-function initStarField() {
-    const canvas = document.getElementById('star-canvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    // Star properties
-    const stars = [];
-    const numStars = 200;
-    const maxStarSize = 2;
-    
-    // Create stars
-    for (let i = 0; i < numStars; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: Math.random() * maxStarSize,
-            opacity: Math.random(),
-            speed: Math.random() * 0.5 + 0.1,
-            twinkleSpeed: Math.random() * 0.02 + 0.005
+function init3DScene() {
+    const container = document.getElementById('canvas-container');
+    if (!container) return;
+
+    // Scene
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0a0a0f, 5, 25);
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 8);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    // Apache-inspired colors: Bronze, Red, Black
+    const bronzeColor = 0xcd7f32;
+    const redAccent = 0xff3333;
+    const neonBlue = 0x00ffff;
+
+    // Lighting - Holographic style
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    scene.add(ambientLight);
+
+    const spotLight1 = new THREE.SpotLight(bronzeColor, 2);
+    spotLight1.position.set(5, 5, 5);
+    scene.add(spotLight1);
+
+    const spotLight2 = new THREE.SpotLight(redAccent, 1.5);
+    spotLight2.position.set(-5, -3, 3);
+    scene.add(spotLight2);
+
+    // HOLOGRAPHIC LOGO - Stylized "A" for Apache
+    const logoGroup = new THREE.Group();
+
+    // Create Apache "A" shape with holographic wireframe
+    const aShape = new THREE.Shape();
+    aShape.moveTo(-1, 0);
+    aShape.lineTo(0, 2);
+    aShape.lineTo(1, 0);
+    aShape.lineTo(0.6, 0);
+    aShape.lineTo(0, 1.2);
+    aShape.lineTo(-0.6, 0);
+    aShape.closePath();
+
+    // Horizontal bar of A
+    aShape.moveTo(-0.4, 0.8);
+    aShape.lineTo(0.4, 0.8);
+    aShape.lineTo(0.4, 1.0);
+    aShape.lineTo(-0.4, 1.0);
+    aShape.closePath();
+
+    // Extrude settings for 3D effect
+    const extrudeSettings = {
+        depth: 0.3,
+        bevelEnabled: true,
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
+        bevelSegments: 3
+    };
+
+    const logoGeometry = new THREE.ExtrudeGeometry(aShape, extrudeSettings);
+
+    // Holographic material
+    const logoMaterial = new THREE.MeshStandardMaterial({
+        color: bronzeColor,
+        metalness: 0.9,
+        roughness: 0.1,
+        emissive: bronzeColor,
+        emissiveIntensity: 0.5,
+        transparent: true,
+        opacity: 0.85
+    });
+
+    const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+    logoMesh.position.set(0, 0, -0.15);
+    logoGroup.add(logoMesh);
+
+    // Wireframe outline for holographic effect
+    const wireframeGeo = new THREE.EdgesGeometry(logoGeometry);
+    const wireframeMat = new THREE.LineBasicMaterial({
+        color: neonBlue,
+        transparent: true,
+        opacity: 0.8,
+        linewidth: 2
+    });
+    const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMat);
+    wireframe.position.copy(logoMesh.position);
+    logoGroup.add(wireframe);
+
+    logoGroup.position.set(2, 0.5, 0);
+    logoGroup.scale.set(1.2, 1.2, 1.2);
+    scene.add(logoGroup);
+
+    // HOLOGRAPHIC RINGS - Speed/motion effect
+    const rings = [];
+    for (let i = 0; i < 5; i++) {
+        const ringGeo = new THREE.TorusGeometry(1.5 + i * 0.3, 0.02, 8, 32);
+        const ringMat = new THREE.MeshBasicMaterial({
+            color: i % 2 === 0 ? bronzeColor : redAccent,
+            transparent: true,
+            opacity: 0.3,
+            wireframe: true
         });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.position.set(2, 0.5, -2 - i * 0.5);
+        ring.rotation.x = Math.PI / 2;
+        rings.push(ring);
+        scene.add(ring);
     }
-    
-    // Shooting stars
-    const shootingStars = [];
-    const maxShootingStars = 3;
-    
-    function createShootingStar() {
-        if (shootingStars.length < maxShootingStars && Math.random() < 0.005) {
-            shootingStars.push({
-                x: Math.random() * canvas.width,
-                y: 0,
-                length: Math.random() * 80 + 50,
-                speed: Math.random() * 10 + 5,
-                opacity: 1
-            });
+
+    // PARTICLE GRID - Holographic scan effect
+    const gridParticles = new THREE.Group();
+    const particleCount = 3000;
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount; i++) {
+        const i3 = i * 3;
+        positions[i3] = (Math.random() - 0.5) * 20;
+        positions[i3 + 1] = (Math.random() - 0.5) * 10;
+        positions[i3 + 2] = (Math.random() - 0.5) * 10;
+
+        // Color mixing - bronze and red
+        const mixRatio = Math.random();
+        if (mixRatio > 0.7) {
+            colors[i3] = 1.0; // R
+            colors[i3 + 1] = 0.2; // G
+            colors[i3 + 2] = 0.2; // B
+        } else {
+            colors[i3] = 0.8; // R
+            colors[i3 + 1] = 0.5; // G
+            colors[i3 + 2] = 0.2; // B
         }
     }
-    
-    // Animation loop
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw stars
-        stars.forEach(star => {
-            // Twinkle effect
-            star.opacity += star.twinkleSpeed;
-            if (star.opacity <= 0.3 || star.opacity >= 1) {
-                star.twinkleSpeed = -star.twinkleSpeed;
-            }
-            
-            // Draw star
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-            ctx.fill();
-            
-            // Move star slowly
-            star.y += star.speed * 0.1;
-            if (star.y > canvas.height) {
-                star.y = 0;
-                star.x = Math.random() * canvas.width;
-            }
+
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+        size: 0.03,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+    });
+
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // HOLOGRAPHIC HEXAGONS - Tech pattern
+    const hexagons = [];
+    for (let i = 0; i < 12; i++) {
+        const hexGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.02, 6);
+        const hexMat = new THREE.MeshBasicMaterial({
+            color: i % 3 === 0 ? bronzeColor : (i % 3 === 1 ? redAccent : neonBlue),
+            transparent: true,
+            opacity: 0.25,
+            wireframe: true
         });
-        
-        // Create and draw shooting stars
-        createShootingStar();
-        
-        shootingStars.forEach((shootingStar, index) => {
-            // Draw shooting star with trail
-            const gradient = ctx.createLinearGradient(
-                shootingStar.x, shootingStar.y,
-                shootingStar.x - shootingStar.length, shootingStar.y - shootingStar.length * 0.5
-            );
-            gradient.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.opacity})`);
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            
-            ctx.beginPath();
-            ctx.moveTo(shootingStar.x, shootingStar.y);
-            ctx.lineTo(
-                shootingStar.x - shootingStar.length,
-                shootingStar.y - shootingStar.length * 0.5
-            );
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            // Move shooting star
-            shootingStar.x += shootingStar.speed;
-            shootingStar.y += shootingStar.speed * 0.5;
-            shootingStar.opacity -= 0.01;
-            
-            // Remove if off screen or faded
-            if (shootingStar.x > canvas.width || shootingStar.y > canvas.height || shootingStar.opacity <= 0) {
-                shootingStars.splice(index, 1);
-            }
-        });
-        
-        requestAnimationFrame(animate);
+        const hex = new THREE.Mesh(hexGeo, hexMat);
+        hex.position.set(
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 6,
+            (Math.random() - 0.5) * 5 - 3
+        );
+        hex.rotation.set(Math.PI / 2, 0, Math.random() * Math.PI);
+        hex.userData.rotSpeed = Math.random() * 0.02;
+        hexagons.push(hex);
+        scene.add(hex);
     }
-    
+
+    // SCAN LINES - Hologram effect
+    const scanLines = [];
+    for (let i = 0; i < 3; i++) {
+        const lineGeo = new THREE.PlaneGeometry(30, 0.05);
+        const lineMat = new THREE.MeshBasicMaterial({
+            color: neonBlue,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide
+        });
+        const line = new THREE.Mesh(lineGeo, lineMat);
+        line.position.y = -5 + i * 2;
+        line.userData.direction = 1;
+        scanLines.push(line);
+        scene.add(line);
+    }
+
+    // CURSOR TRACKING
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    const onMouseMove = (e) => {
+        targetX = (e.clientX / window.innerWidth) * 2 - 1;
+        targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    const onTouchMove = (e) => {
+        if (e.touches.length > 0) {
+            targetX = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+            targetY = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+        }
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('touchmove', onTouchMove);
+
+    // ANIMATION LOOP
+    const clock = new THREE.Clock();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const elapsed = clock.getElapsedTime();
+
+        // Smooth interpolation
+        mouseX += (targetX - mouseX) * 0.05;
+        mouseY += (targetY - mouseY) * 0.05;
+
+        // Rotate logo with cursor
+        logoGroup.rotation.y = elapsed * 0.3 + mouseX * 0.5;
+        logoGroup.rotation.x = Math.sin(elapsed * 0.2) * 0.1 + mouseY * 0.3;
+        logoGroup.position.y = 0.5 + Math.sin(elapsed) * 0.1;
+
+        // Pulse logo glow
+        logoMaterial.emissiveIntensity = 0.5 + Math.sin(elapsed * 2) * 0.2;
+        wireframeMat.opacity = 0.6 + Math.sin(elapsed * 3) * 0.2;
+
+        // Animate rings - moving towards camera
+        rings.forEach((ring, i) => {
+            ring.position.z += 0.02;
+            ring.scale.set(1 + Math.sin(elapsed + i) * 0.1, 1 + Math.sin(elapsed + i) * 0.1, 1);
+
+            if (ring.position.z > 2) {
+                ring.position.z = -4;
+            }
+
+            ring.material.opacity = 0.2 + Math.sin(elapsed * 2 + i) * 0.1;
+        });
+
+        // Animate particles
+        const posAttr = particles.geometry.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+            const y = posAttr.getY(i);
+            posAttr.setY(i, y + Math.sin(elapsed + i * 0.01) * 0.01);
+        }
+        posAttr.needsUpdate = true;
+        particles.rotation.y = elapsed * 0.05;
+
+        // Rotate hexagons
+        hexagons.forEach((hex) => {
+            hex.rotation.z += hex.userData.rotSpeed;
+            hex.position.x += Math.sin(elapsed + hex.position.y) * 0.002;
+        });
+
+        // Animate scan lines
+        scanLines.forEach((line) => {
+            line.position.y += line.userData.direction * 0.03;
+            if (line.position.y > 5) line.userData.direction = -1;
+            if (line.position.y < -5) line.userData.direction = 1;
+            line.material.opacity = 0.2 + Math.sin(elapsed * 2) * 0.1;
+        });
+
+        // Camera movement
+        camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
+        camera.position.y += (mouseY * 1.5 - camera.position.y) * 0.05;
+        camera.lookAt(logoGroup.position);
+
+        // Animate lights
+        spotLight1.position.x = Math.cos(elapsed * 0.5) * 5;
+        spotLight1.position.z = Math.sin(elapsed * 0.5) * 5;
+
+        spotLight2.position.x = Math.sin(elapsed * 0.7) * -5;
+        spotLight2.position.y = Math.cos(elapsed * 0.6) * 3;
+
+        renderer.render(scene, camera);
+    }
+
     animate();
+
+    // RESIZE HANDLER
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+
+/* ============================================
+   GSAP SMOOTH SCROLL ANIMATIONS
+   ============================================ */
+function initSmoothScrollAnimations() {
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.defaults({
+        toggleActions: "play none none reverse",
+        start: "top 85%"
+    });
+
+    gsap.utils.toArray('.section-header').forEach(header => {
+        gsap.fromTo(header,
+            { y: 40, opacity: 0 },
+            {
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out",
+                scrollTrigger: { trigger: header }
+            }
+        );
+    });
+
+    gsap.fromTo(".about-img-wrapper",
+        { x: -60, opacity: 0 },
+        {
+            x: 0, opacity: 1, duration: 1, ease: "power3.out",
+            scrollTrigger: { trigger: "#about", start: "top 75%" }
+        }
+    );
+
+    gsap.fromTo(".about-text",
+        { x: 60, opacity: 0 },
+        {
+            x: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.15,
+            scrollTrigger: { trigger: "#about", start: "top 75%" }
+        }
+    );
+
+    gsap.fromTo(".skill-category",
+        { y: 50, opacity: 0 },
+        {
+            y: 0, opacity: 1, duration: 0.7, ease: "power2.out", stagger: 0.15,
+            scrollTrigger: { trigger: "#skills", start: "top 75%" }
+        }
+    );
+
+    gsap.fromTo(".project-card",
+        { y: 60, opacity: 0, scale: 0.95 },
+        {
+            y: 0, opacity: 1, scale: 1, duration: 0.7, ease: "power2.out", stagger: 0.12,
+            scrollTrigger: { trigger: "#projects", start: "top 75%" }
+        }
+    );
+
+    gsap.fromTo(".contact-card",
+        { y: 30, opacity: 0 },
+        {
+            y: 0, opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.1,
+            scrollTrigger: { trigger: "#contact", start: "top 80%" }
+        }
+    );
 }
 
 /* ============================================
@@ -129,109 +377,67 @@ function initStarField() {
    ============================================ */
 function initTypingEffect() {
     const typedText = document.getElementById('typed-text');
-    const titles = [
-        'AI/ML Enthusiast',
-        'Web Developer',
-        'Problem Solver',
-        'Tech Explorer',
-        'Code Craftsman'
-    ];
-    
+    if (!typedText) return;
+
+    const titles = ['AI Engineer', 'Web Developer', 'Problem Solver', 'Tech Explorer'];
     let titleIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
-    let typingSpeed = 100;
-    
+    let speed = 100;
+
     function type() {
-        const currentTitle = titles[titleIndex];
-        
+        const current = titles[titleIndex];
+
         if (isDeleting) {
-            typedText.textContent = currentTitle.substring(0, charIndex - 1);
+            typedText.textContent = current.substring(0, charIndex - 1);
             charIndex--;
-            typingSpeed = 50;
+            speed = 50;
         } else {
-            typedText.textContent = currentTitle.substring(0, charIndex + 1);
+            typedText.textContent = current.substring(0, charIndex + 1);
             charIndex++;
-            typingSpeed = 100;
+            speed = 100;
         }
-        
-        if (!isDeleting && charIndex === currentTitle.length) {
-            // Pause before deleting
-            typingSpeed = 2000;
+
+        if (!isDeleting && charIndex === current.length) {
+            speed = 2000;
             isDeleting = true;
         } else if (isDeleting && charIndex === 0) {
             isDeleting = false;
             titleIndex = (titleIndex + 1) % titles.length;
-            typingSpeed = 500;
+            speed = 400;
         }
-        
-        setTimeout(type, typingSpeed);
+
+        setTimeout(type, speed);
     }
-    
-    // Start typing after a short delay
-    setTimeout(type, 1000);
+
+    setTimeout(type, 800);
 }
 
 /* ============================================
-   NAVBAR FUNCTIONALITY
+   NAVBAR
    ============================================ */
 function initNavbar() {
     const navbar = document.querySelector('.navbar');
-    const navToggle = document.getElementById('nav-toggle');
-    const navLinks = document.querySelector('.nav-links');
-    
-    // Scroll effect
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
-    
-    // Mobile toggle
-    navToggle.addEventListener('click', () => {
-        navToggle.classList.toggle('active');
-        navLinks.classList.toggle('active');
-    });
-    
-    // Close mobile menu on link click
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            navToggle.classList.remove('active');
-            navLinks.classList.remove('active');
-        });
-    });
-}
+    const toggle = document.getElementById('nav-toggle');
+    const links = document.querySelector('.nav-links');
 
-/* ============================================
-   SCROLL REVEAL ANIMATION
-   ============================================ */
-function initScrollReveal() {
-    // Elements to reveal
-    const revealElements = document.querySelectorAll(
-        '.section-header, .about-content, .skill-category, .project-card, .contact-card'
-    );
-    
-    // Add reveal class
-    revealElements.forEach(el => el.classList.add('reveal'));
-    
-    // Intersection Observer
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    if (toggle && links) {
+        toggle.addEventListener('click', () => {
+            toggle.classList.toggle('active');
+            links.classList.toggle('active');
         });
-    }, observerOptions);
-    
-    revealElements.forEach(el => observer.observe(el));
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                toggle.classList.remove('active');
+                links.classList.remove('active');
+            });
+        });
+    }
 }
 
 /* ============================================
@@ -239,83 +445,16 @@ function initScrollReveal() {
    ============================================ */
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const targetId = this.getAttribute('href');
-            
-            if (targetId === '#') return;
-            
-            const target = document.querySelector(targetId);
-            if (target) {
-                const headerOffset = 80;
-                const elementPosition = target.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
+            const id = this.getAttribute('href');
+            if (id === '#') return;
+            const el = document.querySelector(id);
+            if (el) {
+                const offset = 70;
+                const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({ top, behavior: 'smooth' });
             }
         });
     });
 }
-
-/* ============================================
-   EASTER EGG - KONAMI CODE
-   ============================================ */
-const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
-let konamiIndex = 0;
-
-document.addEventListener('keydown', (e) => {
-    if (e.code === konamiCode[konamiIndex]) {
-        konamiIndex++;
-        if (konamiIndex === konamiCode.length) {
-            activateRainbowMode();
-            konamiIndex = 0;
-        }
-    } else {
-        konamiIndex = 0;
-    }
-});
-
-function activateRainbowMode() {
-    document.body.style.animation = 'rainbow 5s linear infinite';
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes rainbow {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Reset after 10 seconds
-    setTimeout(() => {
-        document.body.style.animation = '';
-    }, 10000);
-}
-
-/* ============================================
-   CONSOLE MESSAGE
-   ============================================ */
-console.log(`
-%c👋 Hey there, curious developer!
-
-%cWelcome to Umesh Verma's Portfolio
-%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-%cThanks for checking out the code!
-Feel free to reach out:
-📧 umeshv642@gmail.com
-💼 linkedin.com/in/uv-mv
-🐙 github.com/Umesh-codes
-
-%c🚀 Happy Coding!
-`,
-'color: #8b5cf6; font-size: 20px; font-weight: bold;',
-'color: #06b6d4; font-size: 16px;',
-'color: #a78bfa;',
-'color: #a1a1aa; font-size: 12px;',
-'color: #f472b6; font-size: 14px; font-weight: bold;'
-);
