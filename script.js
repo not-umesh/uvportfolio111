@@ -107,9 +107,10 @@ function init3DScene() {
                         metalness: 0.9,
                         roughness: 0.1,
                         transparent: true,
-                        opacity: 0.08,
+                        transparent: true,
+                        opacity: 0.3, // Increased visibility
                         emissive: new THREE.Color(wire),
-                        emissiveIntensity: 0.15
+                        emissiveIntensity: 1.0 // Much brighter
                     });
 
                     // Apply wireframe
@@ -117,7 +118,7 @@ function init3DScene() {
                     const wireMat = new THREE.LineBasicMaterial({
                         color: wire,
                         transparent: true,
-                        opacity: 0.5
+                        opacity: 0.8 // More visible wireframe
                     });
                     const wireframe = new THREE.LineSegments(wireGeo, wireMat);
                     child.add(wireframe);
