@@ -4,54 +4,39 @@ This guide will help you upload your 3D Portfolio to InfinityFree.
 
 ## Prerequisites
 1. An account on [InfinityFree](https://www.infinityfree.com/)
-2. A created hosting account (domain name set up in InfinityFree dashboard)
+2. A created hosting account
+
+## 🚨 IMPORTANT CHANGE
+**You DO NOT need to upload the `apache-bike-model.glb` file anymore!**
+The website is now configured to load the 3D model directly from the cloud (GitHub CDN). This fixes the "File too large" error.
 
 ## Step-by-Step Deployment
 
 ### 1. Prepare Your Files
-Ensure you have the following files ready in your project folder:
+You only need these 3 files:
 - `index.html`
 - `styles.css`
 - `script.js`
-- `apache-bike-model.glb` (The 3D bike model)
-- Any other images/assets (e.g. `logo.png` if you have one)
+- `UvPortfolioimg.jpeg` (Profile photo)
 
 ### 2. Access the File Manager
 1. Login to the [InfinityFree Client Area](https://app.infinityfree.com/).
 2. Click **"Manage"** next to your hosting account.
-3. Click the **"File Manager"** button (this usually opens a tool called "Monsta FTP").
+3. Click the **"File Manager"** button.
 
 ### 3. Upload Files
-1. In the File Manager, double-click on the **`htdocs`** folder to open it.
-   - *Important:* Your website files MUST go inside `htdocs`. Files outside this folder won't be visible.
-2. Delete the default files (`index2.html` or `default.php`) if they exist.
-3. **Upload all your project files**:
-   - Click the **Upload** icon (usually an arrow pointing up).
-   - Select **Upload File**.
-   - Select all your project files (`index.html`, `styles.css`, `script.js`, `apache-bike-model.glb`, etc.).
-   - Wait for the upload to complete.
+1. In `htdocs`, delete any default files.
+2. **Upload ONLY these files**:
+   - `index.html`
+   - `styles.css`
+   - `script.js`
+   - `UvPortfolioimg.jpeg`
+   
+   **⛔ DO NOT upload `apache-bike-model.glb` (It's too big, we load it from cloud now)**
 
-### 4. Verify Upload
-Ensure your file structure in `htdocs` looks like this:
-```
-/htdocs
-  ├── index.html
-  ├── styles.css
-  ├── script.js
-  └── apache-bike-model.glb
-```
+### 4. Verify & Launch
+1. Check your website link.
+2. It should load perfectly with the 3D bike!
+   *(Note: The first load might take a few seconds as it downloads the model)*
 
-### 5. Check Your Website
-1. Go back to the InfinityFree Client Area.
-2. Click your website link (e.g., `http://your-site.rf.gd`).
-3. Your 3D Portfolio should now load!
-
-## Troubleshooting
-
-- **3D Bike Not Loading?** 
-  - Make sure `apache-bike-model.glb` was uploaded correctly.
-  - Sometimes changes take a few minutes to propagate. Try clearing your browser cache.
-- **Message "Directory Listing" or "403 Forbidden"?**
-  - This means `index.html` is missing from `htdocs` or is named incorrectly. Ensure it's exactly `index.html`.
-
-Enjoy your new 3D website! 🚀
+Enjoy your site! 🚀

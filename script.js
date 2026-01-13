@@ -72,10 +72,14 @@ function init3DScene() {
 
     console.log('🏍️ Loading Apache bike model...');
 
+    // Load model directly from GitHub Raw (Verified working with CORS)
+    const modelUrl = 'https://raw.githubusercontent.com/not-umesh/uvportfolio111/main/apache-bike-model.glb';
+    console.log('🔄 Loading model from cloud:', modelUrl);
+
     loader.load(
-        'apache-bike-model.glb',
+        modelUrl,
         (gltf) => {
-            console.log('✅ Model loaded!');
+            console.log('✅ Model loaded from cloud!');
             bikeModel = gltf.scene;
 
             // Color palette
