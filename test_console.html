@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Console Check</title>
+</head>
+<body>
+    <h1>Open Console (Cmd+Option+I) to see bike loading status</h1>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        console.log('🔍 Testing bike model load...');
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+            'tvs apache rtr 160 3d model.glb',
+            (gltf) => { 
+                console.log('✅ Model loaded!', gltf);
+                let count = 0;
+                gltf.scene.traverse(c => { if(c.isMesh) count++; });
+                console.log(`Total meshes: ${count}`);
+            },
+            (xhr) => { console.log(`Loading: ${(xhr.loaded/xhr.total*100).toFixed(0)}%`); },
+            (err) => { console.error('❌ Load failed:', err); }
+        );
+    </script>
+</body>
+</html>

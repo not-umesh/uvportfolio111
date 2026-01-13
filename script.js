@@ -1,8 +1,9 @@
 /* ============================================
-   UMESH VERMA PORTFOLIO - HOLOGRAPHIC TVS APACHE THEME
+   UMESH VERMA PORTFOLIO - 3D BIKE MODEL (CLEAN)
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Portfolio initializing...');
     init3DScene();
     initTypingEffect();
     initNavbar();
@@ -11,206 +12,399 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ============================================
-   THREE.JS - HOLOGRAPHIC APACHE LOGO SCENE
+   THREE.JS - HOLOGRAPHIC APACHE BIKE
    ============================================ */
 function init3DScene() {
     const container = document.getElementById('canvas-container');
-    if (!container) return;
+    if (!container) {
+        console.error('Canvas container not found!');
+        return;
+    }
+
+    console.log('✅ Canvas container found');
 
     // Scene
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a0a0f, 5, 25);
+    scene.fog = new THREE.Fog(0x0a0a0f, 10, 35);
 
     // Camera
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 0, 8);
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(4, 2, 8);
+    camera.lookAt(0, 0, 0);
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
-    // Apache-inspired colors: Bronze, Red, Black
+    console.log('✅ Three.js scene created');
+
+    // Apache-inspired colors
     const bronzeColor = 0xcd7f32;
     const redAccent = 0xff3333;
-    const neonBlue = 0x00ffff;
+    const cyanGlow = 0x00ffff;
 
-    // Lighting - Holographic style
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    // Lighting Setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    const spotLight1 = new THREE.SpotLight(bronzeColor, 2);
-    spotLight1.position.set(5, 5, 5);
-    scene.add(spotLight1);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1);
+    keyLight.position.set(5, 5, 5);
+    scene.add(keyLight);
 
-    const spotLight2 = new THREE.SpotLight(redAccent, 1.5);
-    spotLight2.position.set(-5, -3, 3);
-    scene.add(spotLight2);
+    const fillLight = new THREE.DirectionalLight(bronzeColor, 0.7);
+    fillLight.position.set(-5, 3, -5);
+    scene.add(fillLight);
 
-    // HOLOGRAPHIC LOGO - Stylized "A" for Apache
-    const logoGroup = new THREE.Group();
+    const rimLight = new THREE.PointLight(redAccent, 2, 20);
+    rimLight.position.set(0, 2, -5);
+    scene.add(rimLight);
 
-    // Create Apache "A" shape with holographic wireframe
-    const aShape = new THREE.Shape();
-    aShape.moveTo(-1, 0);
-    aShape.lineTo(0, 2);
-    aShape.lineTo(1, 0);
-    aShape.lineTo(0.6, 0);
-    aShape.lineTo(0, 1.2);
-    aShape.lineTo(-0.6, 0);
-    aShape.closePath();
+    const accentLight = new THREE.PointLight(cyanGlow, 1.5, 15);
+    accentLight.position.set(-3, 1, 3);
+    scene.add(accentLight);
 
-    // Horizontal bar of A
-    aShape.moveTo(-0.4, 0.8);
-    aShape.lineTo(0.4, 0.8);
-    aShape.lineTo(0.4, 1.0);
-    aShape.lineTo(-0.4, 1.0);
-    aShape.closePath();
+    // Load TVS Apache Bike Model
+    let bikeModel = null;
+    const loader = new THREE.GLTFLoader();
 
-    // Extrude settings for 3D effect
-    const extrudeSettings = {
-        depth: 0.3,
-        bevelEnabled: true,
-        bevelThickness: 0.05,
-        bevelSize: 0.05,
-        bevelSegments: 3
-    };
+    console.log('🏍️ Loading Apache bike model...');
 
-    const logoGeometry = new THREE.ExtrudeGeometry(aShape, extrudeSettings);
+    loader.load(
+        'apache-bike-model.glb',
+        (gltf) => {
+            console.log('✅ Model loaded!');
+            bikeModel = gltf.scene;
 
-    // Holographic material
-    const logoMaterial = new THREE.MeshStandardMaterial({
-        color: bronzeColor,
-        metalness: 0.9,
-        roughness: 0.1,
-        emissive: bronzeColor,
-        emissiveIntensity: 0.5,
-        transparent: true,
-        opacity: 0.85
-    });
+            // Color palette
+            const colors = [
+                { wire: 0xff3333, base: 0x330000, name: 'Red' },      // Red
+                { wire: 0xffd700, base: 0x332200, name: 'Gold' },     // Gold
+                { wire: 0xaa00ff, base: 0x1a0033, name: 'Purple' },   // Purple
+                { wire: 0x00d4ff, base: 0x001a33, name: 'Blue' },     // Light Blue
+                { wire: 0x00ff88, base: 0x001a0d, name: 'Cyan' }      // Cyan
+            ];
 
-    const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
-    logoMesh.position.set(0, 0, -0.15);
-    logoGroup.add(logoMesh);
+            let meshIndex = 0;
 
-    // Wireframe outline for holographic effect
-    const wireframeGeo = new THREE.EdgesGeometry(logoGeometry);
-    const wireframeMat = new THREE.LineBasicMaterial({
-        color: neonBlue,
+            bikeModel.traverse((child) => {
+                if (child.isMesh) {
+                    // Cycle through colors - change color every few meshes
+                    const colorIndex = Math.floor(meshIndex / 5) % colors.length;
+                    const { wire, base, name } = colors[colorIndex];
+
+                    console.log(`Mesh ${meshIndex}: ${name}`);
+
+                    // Apply holographic material
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: base,
+                        metalness: 0.9,
+                        roughness: 0.1,
+                        transparent: true,
+                        opacity: 0.08,
+                        emissive: new THREE.Color(wire),
+                        emissiveIntensity: 0.15
+                    });
+
+                    // Apply wireframe
+                    const wireGeo = new THREE.EdgesGeometry(child.geometry);
+                    const wireMat = new THREE.LineBasicMaterial({
+                        color: wire,
+                        transparent: true,
+                        opacity: 0.5
+                    });
+                    const wireframe = new THREE.LineSegments(wireGeo, wireMat);
+                    child.add(wireframe);
+
+                    meshIndex++;
+                }
+            });
+
+            console.log(`✅ Applied colors to ${meshIndex} meshes`);
+
+            // Position bike - bigger, centered, front-facing
+            bikeModel.scale.set(5.5, 5.5, 5.5); // Larger
+            bikeModel.position.set(0, 0, 0); // Centered
+            bikeModel.rotation.y = 0; // Front-facing (headlight toward camera)
+
+            scene.add(bikeModel);
+            console.log('✅ Bike added to scene');
+        },
+        (xhr) => {
+            if (xhr.total > 0) {
+                console.log(`Loading: ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`);
+            }
+        },
+        (error) => {
+            console.error('❌ Failed to load:', error);
+        }
+    );
+
+    // SPACE - STARFIELD BACKGROUND
+    const starsGeo = new THREE.BufferGeometry();
+    const starCount = 800;
+    const starPositions = new Float32Array(starCount * 3);
+    const starColors = new Float32Array(starCount * 3);
+
+    for (let i = 0; i < starCount; i++) {
+        const i3 = i * 3;
+        // Distribute stars in a sphere around the scene
+        const radius = 20 + Math.random() * 30;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.random() * Math.PI;
+
+        starPositions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+        starPositions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        starPositions[i3 + 2] = radius * Math.cos(phi);
+
+        // Various star colors (white, blue, bronze)
+        const colorChoice = Math.random();
+        if (colorChoice < 0.6) {
+            starColors[i3] = 1; starColors[i3 + 1] = 1; starColors[i3 + 2] = 1; // White
+        } else if (colorChoice < 0.8) {
+            starColors[i3] = 0; starColors[i3 + 1] = 0.7; starColors[i3 + 2] = 1; // Blue
+        } else {
+            starColors[i3] = 0.8; starColors[i3 + 1] = 0.5; starColors[i3 + 2] = 0.2; // Bronze
+        }
+    }
+
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    starsGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+    const starsMat = new THREE.PointsMaterial({
+        size: 0.05,
+        vertexColors: true,
         transparent: true,
         opacity: 0.8,
-        linewidth: 2
+        blending: THREE.AdditiveBlending
     });
-    const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMat);
-    wireframe.position.copy(logoMesh.position);
-    logoGroup.add(wireframe);
 
-    logoGroup.position.set(2, 0.5, 0);
-    logoGroup.scale.set(1.2, 1.2, 1.2);
-    scene.add(logoGroup);
+    const stars = new THREE.Points(starsGeo, starsMat);
+    scene.add(stars);
 
-    // HOLOGRAPHIC RINGS - Speed/motion effect
-    const rings = [];
-    for (let i = 0; i < 5; i++) {
-        const ringGeo = new THREE.TorusGeometry(1.5 + i * 0.3, 0.02, 8, 32);
-        const ringMat = new THREE.MeshBasicMaterial({
-            color: i % 2 === 0 ? bronzeColor : redAccent,
+    // PLANETS - Floating spheres
+    const planets = [];
+    for (let i = 0; i < 3; i++) {
+        const planetSize = 0.4 + Math.random() * 0.3;
+        const planetGeo = new THREE.SphereGeometry(planetSize, 16, 16);
+        const planetMat = new THREE.MeshStandardMaterial({
+            color: i === 0 ? bronzeColor : (i === 1 ? cyanGlow : redAccent),
+            metalness: 0.7,
+            roughness: 0.3,
+            transparent: true,
+            opacity: 0.4,
+            emissive: i === 0 ? bronzeColor : (i === 1 ? cyanGlow : redAccent),
+            emissiveIntensity: 0.3
+        });
+        const planet = new THREE.Mesh(planetGeo, planetMat);
+
+        // Add rings to some planets
+        if (i === 1) {
+            const ringGeo = new THREE.TorusGeometry(planetSize * 1.5, 0.02, 8, 32);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: cyanGlow,
+                transparent: true,
+                opacity: 0.3,
+                wireframe: true
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2 + 0.3;
+            planet.add(ring);
+        }
+
+        planet.position.set(
+            -6 + i * 5,
+            1 + Math.random() * 2,
+            -8 - Math.random() * 4
+        );
+
+        planet.userData.rotSpeed = 0.001 + Math.random() * 0.002;
+        planet.userData.floatSpeed = 0.3 + Math.random() * 0.3;
+        planets.push(planet);
+        scene.add(planet);
+    }
+
+    // ASTEROID BELT - Floating rocks
+    const asteroids = [];
+    for (let i = 0; i < 15; i++) {
+        const asteroidSize = 0.08 + Math.random() * 0.12;
+        const asteroidGeo = new THREE.DodecahedronGeometry(asteroidSize, 0);
+        const asteroidMat = new THREE.MeshBasicMaterial({
+            color: 0x444444,
             transparent: true,
             opacity: 0.3,
             wireframe: true
         });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.position.set(2, 0.5, -2 - i * 0.5);
-        ring.rotation.x = Math.PI / 2;
-        rings.push(ring);
-        scene.add(ring);
+        const asteroid = new THREE.Mesh(asteroidGeo, asteroidMat);
+
+        // Position in a belt around the bike
+        const angle = (i / 15) * Math.PI * 2;
+        const distance = 4 + Math.random() * 2;
+        asteroid.position.set(
+            Math.cos(angle) * distance,
+            -0.5 + Math.random() * 3,
+            Math.sin(angle) * distance - 2
+        );
+
+        asteroid.rotation.set(
+            Math.random() * Math.PI,
+            Math.random() * Math.PI,
+            Math.random() * Math.PI
+        );
+
+        asteroid.userData.rotSpeed = {
+            x: (Math.random() - 0.5) * 0.02,
+            y: (Math.random() - 0.5) * 0.02,
+            z: (Math.random() - 0.5) * 0.02
+        };
+
+        asteroids.push(asteroid);
+        scene.add(asteroid);
     }
 
-    // PARTICLE GRID - Holographic scan effect
-    const gridParticles = new THREE.Group();
-    const particleCount = 3000;
+    // NEBULA PARTICLES - Colorful space dust
+    const nebulaCount = 300;
+    const nebulaPositions = new Float32Array(nebulaCount * 3);
+    const nebulaColors = new Float32Array(nebulaCount * 3);
+
+    for (let i = 0; i < nebulaCount; i++) {
+        const i3 = i * 3;
+        nebulaPositions[i3] = (Math.random() - 0.5) * 25;
+        nebulaPositions[i3 + 1] = (Math.random() - 0.5) * 12;
+        nebulaPositions[i3 + 2] = (Math.random() - 0.5) * 15;
+
+        // Purple, cyan, bronze nebula colors
+        const colorPick = Math.random();
+        if (colorPick < 0.33) {
+            nebulaColors[i3] = 0.5; nebulaColors[i3 + 1] = 0; nebulaColors[i3 + 2] = 1; // Purple
+        } else if (colorPick < 0.66) {
+            nebulaColors[i3] = 0; nebulaColors[i3 + 1] = 1; nebulaColors[i3 + 2] = 1; // Cyan
+        } else {
+            nebulaColors[i3] = 1; nebulaColors[i3 + 1] = 0.6; nebulaColors[i3 + 2] = 0; // Orange
+        }
+    }
+
+    const nebulaGeo = new THREE.BufferGeometry();
+    nebulaGeo.setAttribute('position', new THREE.BufferAttribute(nebulaPositions, 3));
+    nebulaGeo.setAttribute('color', new THREE.BufferAttribute(nebulaColors, 3));
+
+    const nebulaMat = new THREE.PointsMaterial({
+        size: 0.15,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.4,
+        blending: THREE.AdditiveBlending
+    });
+
+    const nebula = new THREE.Points(nebulaGeo, nebulaMat);
+    scene.add(nebula);
+
+    // GLOWING ORBS - Energy spheres
+    const orbs = [];
+    for (let i = 0; i < 4; i++) {
+        const orbGeo = new THREE.SphereGeometry(0.15, 16, 16);
+        const orbMat = new THREE.MeshBasicMaterial({
+            color: i % 2 === 0 ? cyanGlow : bronzeColor,
+            transparent: true,
+            opacity: 0.5
+        });
+        const orb = new THREE.Mesh(orbGeo, orbMat);
+
+        orb.position.set(
+            (Math.random() - 0.5) * 12,
+            (Math.random() - 0.5) * 6,
+            -3 - Math.random() * 3
+        );
+
+        // Add glow
+        const glowGeo = new THREE.SphereGeometry(0.25, 16, 16);
+        const glowMat = new THREE.MeshBasicMaterial({
+            color: i % 2 === 0 ? cyanGlow : bronzeColor,
+            transparent: true,
+            opacity: 0.2,
+            side: THREE.BackSide
+        });
+        const glow = new THREE.Mesh(glowGeo, glowMat);
+        orb.add(glow);
+
+        orb.userData.floatSpeed = 0.4 + Math.random() * 0.4;
+        orbs.push(orb);
+        scene.add(orb);
+    }
+
+    // MINIMAL PARTICLES - Subtle sparkle
+    const particleCount = 150;
     const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 20;
-        positions[i3 + 1] = (Math.random() - 0.5) * 10;
-        positions[i3 + 2] = (Math.random() - 0.5) * 10;
-
-        // Color mixing - bronze and red
-        const mixRatio = Math.random();
-        if (mixRatio > 0.7) {
-            colors[i3] = 1.0; // R
-            colors[i3 + 1] = 0.2; // G
-            colors[i3 + 2] = 0.2; // B
-        } else {
-            colors[i3] = 0.8; // R
-            colors[i3 + 1] = 0.5; // G
-            colors[i3 + 2] = 0.2; // B
-        }
+        positions[i3] = (Math.random() - 0.5) * 18;
+        positions[i3 + 1] = (Math.random() - 0.5) * 6;
+        positions[i3 + 2] = (Math.random() - 0.5) * 8;
     }
 
     const particleGeo = new THREE.BufferGeometry();
     particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const particleMat = new THREE.PointsMaterial({
-        size: 0.03,
-        vertexColors: true,
+        size: 0.025,
+        color: bronzeColor,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.4,
         blending: THREE.AdditiveBlending
     });
 
     const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
 
-    // HOLOGRAPHIC HEXAGONS - Tech pattern
-    const hexagons = [];
-    for (let i = 0; i < 12; i++) {
-        const hexGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.02, 6);
-        const hexMat = new THREE.MeshBasicMaterial({
-            color: i % 3 === 0 ? bronzeColor : (i % 3 === 1 ? redAccent : neonBlue),
+    // GEOMETRIC ACCENT SHAPES - Minimal modern feel
+    const geometries = [];
+    for (let i = 0; i < 4; i++) {
+        const size = 0.25 + Math.random() * 0.15;
+        const geo = new THREE.OctahedronGeometry(size, 0);
+        const mat = new THREE.MeshBasicMaterial({
+            color: i % 2 === 0 ? bronzeColor : redAccent,
             transparent: true,
-            opacity: 0.25,
+            opacity: 0.2,
             wireframe: true
         });
-        const hex = new THREE.Mesh(hexGeo, hexMat);
-        hex.position.set(
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 6,
-            (Math.random() - 0.5) * 5 - 3
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(
+            (Math.random() - 0.5) * 12,
+            (Math.random() - 0.5) * 5,
+            -2 - Math.random() * 3
         );
-        hex.rotation.set(Math.PI / 2, 0, Math.random() * Math.PI);
-        hex.userData.rotSpeed = Math.random() * 0.02;
-        hexagons.push(hex);
-        scene.add(hex);
+        mesh.rotation.set(
+            Math.random() * Math.PI,
+            Math.random() * Math.PI,
+            Math.random() * Math.PI
+        );
+        mesh.userData.rotSpeed = {
+            x: (Math.random() - 0.5) * 0.008,
+            y: (Math.random() - 0.5) * 0.008
+        };
+        geometries.push(mesh);
+        scene.add(mesh);
     }
 
-    // SCAN LINES - Hologram effect
-    const scanLines = [];
-    for (let i = 0; i < 3; i++) {
-        const lineGeo = new THREE.PlaneGeometry(30, 0.05);
-        const lineMat = new THREE.MeshBasicMaterial({
-            color: neonBlue,
-            transparent: true,
-            opacity: 0.3,
-            side: THREE.DoubleSide
-        });
-        const line = new THREE.Mesh(lineGeo, lineMat);
-        line.position.y = -5 + i * 2;
-        line.userData.direction = 1;
-        scanLines.push(line);
-        scene.add(line);
-    }
+    // SINGLE ACCENT RING - Depth element
+    const accentRingGeo = new THREE.TorusGeometry(2.8, 0.05, 6, 24);
+    const accentRingMat = new THREE.MeshBasicMaterial({
+        color: cyanGlow,
+        transparent: true,
+        opacity: 0.18,
+        wireframe: true
+    });
+    const accentRing = new THREE.Mesh(accentRingGeo, accentRingMat);
+    accentRing.position.set(2, 0, -3.5);
+    accentRing.rotation.x = Math.PI / 2;
+    scene.add(accentRing);
 
     // CURSOR TRACKING
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
+    let mouseX = 0, mouseY = 0;
+    let targetX = 0, targetY = 0;
 
     const onMouseMove = (e) => {
         targetX = (e.clientX / window.innerWidth) * 2 - 1;
@@ -227,6 +421,69 @@ function init3DScene() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('touchmove', onTouchMove);
 
+    // DOUBLE-CLICK EASTER EGG - Click on canvas to reveal message
+    const codingMessages = [
+        "🏍️ Umesh.ride() executed successfully!",
+        "console.log('This is Umesh\\'s Apache!');",
+        "// Built with ❤️ by Umesh Verma",
+        "git commit -m 'Umesh owns this beast'",
+        "class Apache extends UmeshBike { }",
+        "const owner = 'Umesh'; // No bugs here!",
+        "npm install umesh-apache-rtr-160",
+        "sudo chown umesh:dev /bike/apache",
+        "while(true) { umesh.ride(apache); }",
+        "/* Powered by Umesh's Code Engine */"
+    ];
+
+    // Create message display element - small and subtle
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,20,40,0.5);
+        backdrop-filter: blur(10px);
+        color: #00ffff;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.9rem;
+        padding: 12px 25px;
+        border-radius: 8px;
+        border: 1px solid rgba(0,255,255,0.3);
+        box-shadow: 0 0 15px rgba(0,255,255,0.2);
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    `;
+    document.body.appendChild(messageDiv);
+
+    let messageTimeout;
+
+    // Double-click ONLY on bike area shows easter egg
+    const canvasContainer = document.getElementById('canvas-container');
+    console.log('Canvas container found:', canvasContainer);
+
+    if (canvasContainer) {
+        canvasContainer.addEventListener('dblclick', () => {
+            alert('Double-click detected! Easter egg triggered!');
+
+            // Show random coding message
+            const randomMessage = codingMessages[Math.floor(Math.random() * codingMessages.length)];
+            messageDiv.textContent = randomMessage;
+            messageDiv.style.opacity = '1';
+            messageDiv.style.transform = 'translate(-50%, -50%) scale(1)';
+
+            // Hide after 2 seconds
+            clearTimeout(messageTimeout);
+            messageTimeout = setTimeout(() => {
+                messageDiv.style.opacity = '0';
+            }, 2000);
+        });
+    } else {
+        console.error('Canvas container not found!');
+    }
+
     // ANIMATION LOOP
     const clock = new THREE.Clock();
 
@@ -234,70 +491,123 @@ function init3DScene() {
         requestAnimationFrame(animate);
         const elapsed = clock.getElapsedTime();
 
-        // Smooth interpolation
         mouseX += (targetX - mouseX) * 0.05;
         mouseY += (targetY - mouseY) * 0.05;
 
-        // Rotate logo with cursor
-        logoGroup.rotation.y = elapsed * 0.3 + mouseX * 0.5;
-        logoGroup.rotation.x = Math.sin(elapsed * 0.2) * 0.1 + mouseY * 0.3;
-        logoGroup.position.y = 0.5 + Math.sin(elapsed) * 0.1;
+        // Animate bike
+        if (bikeModel) {
+            bikeModel.rotation.y = elapsed * 0.12; // Slow rotation
+            bikeModel.position.y = Math.sin(elapsed * 0.7) * 0.12; // Gentle float around center
+            bikeModel.rotation.x = mouseY * 0.12;
+            bikeModel.rotation.z = -mouseX * 0.06;
 
-        // Pulse logo glow
-        logoMaterial.emissiveIntensity = 0.5 + Math.sin(elapsed * 2) * 0.2;
-        wireframeMat.opacity = 0.6 + Math.sin(elapsed * 3) * 0.2;
+            // Color palette for smooth transitions
+            const colorPalette = [
+                0xff3333, // Red
+                0xffd700, // Gold
+                0xaa00ff, // Purple
+                0x00d4ff, // Cyan
+                0x00ff88, // Green
+                0xff6600  // Orange
+            ];
 
-        // Animate rings - moving towards camera
-        rings.forEach((ring, i) => {
-            ring.position.z += 0.02;
-            ring.scale.set(1 + Math.sin(elapsed + i) * 0.1, 1 + Math.sin(elapsed + i) * 0.1, 1);
+            // Slow color cycling - 10 seconds per full cycle
+            const colorCycleSpeed = 0.1;
+            const colorIndex = (elapsed * colorCycleSpeed) % colorPalette.length;
+            const currentColorIdx = Math.floor(colorIndex);
+            const nextColorIdx = (currentColorIdx + 1) % colorPalette.length;
+            const mixAmount = colorIndex - currentColorIdx;
 
-            if (ring.position.z > 2) {
-                ring.position.z = -4;
-            }
+            // Interpolate between current and next color
+            const currentColor = new THREE.Color(colorPalette[currentColorIdx]);
+            const nextColor = new THREE.Color(colorPalette[nextColorIdx]);
+            const mixedColor = currentColor.clone().lerp(nextColor, mixAmount);
 
-            ring.material.opacity = 0.2 + Math.sin(elapsed * 2 + i) * 0.1;
-        });
+            // Pulsing glow intensity - dim and bright
+            const glowPulse = 0.2 + Math.sin(elapsed * 1.5) * 0.15; // 0.05 to 0.35
 
-        // Animate particles
-        const posAttr = particles.geometry.attributes.position;
-        for (let i = 0; i < posAttr.count; i++) {
-            const y = posAttr.getY(i);
-            posAttr.setY(i, y + Math.sin(elapsed + i * 0.01) * 0.01);
+            // Apply to all bike meshes
+            bikeModel.traverse((child) => {
+                if (child.isMesh && child.material) {
+                    // Smoothly change color
+                    child.material.emissive.copy(mixedColor);
+
+                    // Pulse glow intensity
+                    child.material.emissiveIntensity = glowPulse;
+
+                    // Pulse opacity slightly
+                    child.material.opacity = 0.08 + Math.sin(elapsed * 1.2) * 0.03;
+
+                    // Pulse wireframe
+                    if (child.children[0] && child.children[0].material) {
+                        child.children[0].material.color.copy(mixedColor);
+                        child.children[0].material.opacity = 0.5 + Math.sin(elapsed * 2) * 0.2;
+                    }
+                }
+            });
         }
-        posAttr.needsUpdate = true;
-        particles.rotation.y = elapsed * 0.05;
 
-        // Rotate hexagons
-        hexagons.forEach((hex) => {
-            hex.rotation.z += hex.userData.rotSpeed;
-            hex.position.x += Math.sin(elapsed + hex.position.y) * 0.002;
+        // Subtle particle movement
+        particles.rotation.y = elapsed * 0.02;
+
+        // Animate stars - slow rotation
+        stars.rotation.y = elapsed * 0.01;
+        stars.rotation.x = Math.sin(elapsed * 0.05) * 0.1;
+
+        // Animate planets
+        planets.forEach((planet, i) => {
+            planet.rotation.y += planet.userData.rotSpeed;
+            planet.position.y += Math.sin(elapsed * planet.userData.floatSpeed + i) * 0.003;
         });
 
-        // Animate scan lines
-        scanLines.forEach((line) => {
-            line.position.y += line.userData.direction * 0.03;
-            if (line.position.y > 5) line.userData.direction = -1;
-            if (line.position.y < -5) line.userData.direction = 1;
-            line.material.opacity = 0.2 + Math.sin(elapsed * 2) * 0.1;
+        // Animate asteroids
+        asteroids.forEach((asteroid) => {
+            asteroid.rotation.x += asteroid.userData.rotSpeed.x;
+            asteroid.rotation.y += asteroid.userData.rotSpeed.y;
+            asteroid.rotation.z += asteroid.userData.rotSpeed.z;
         });
+
+        // Animate nebula particles
+        nebula.rotation.y = elapsed * 0.015;
+        nebula.rotation.x = Math.sin(elapsed * 0.08) * 0.05;
+
+        // Animate orbs - floating and pulsing
+        orbs.forEach((orb, i) => {
+            orb.position.y += Math.sin(elapsed * orb.userData.floatSpeed + i) * 0.005;
+            const scale = 1 + Math.sin(elapsed * 2 + i) * 0.1;
+            orb.scale.set(scale, scale, scale);
+            orb.children[0].material.opacity = 0.2 + Math.sin(elapsed * 3 + i) * 0.1;
+        });
+
+        // Animate geometries
+        geometries.forEach((geo) => {
+            geo.rotation.x += geo.userData.rotSpeed.x;
+            geo.rotation.y += geo.userData.rotSpeed.y;
+        });
+
+        // Animate accent ring
+        accentRing.rotation.z = elapsed * 0.25;
+        accentRing.scale.set(
+            1 + Math.sin(elapsed * 0.8) * 0.04,
+            1 + Math.sin(elapsed * 0.8) * 0.04,
+            1
+        );
 
         // Camera movement
-        camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
-        camera.position.y += (mouseY * 1.5 - camera.position.y) * 0.05;
-        camera.lookAt(logoGroup.position);
+        camera.position.x = 4 + mouseX * 1.5;
+        camera.position.y = 2 + mouseY * 1.2;
+        camera.lookAt(0.5, 0, 0);
 
         // Animate lights
-        spotLight1.position.x = Math.cos(elapsed * 0.5) * 5;
-        spotLight1.position.z = Math.sin(elapsed * 0.5) * 5;
-
-        spotLight2.position.x = Math.sin(elapsed * 0.7) * -5;
-        spotLight2.position.y = Math.cos(elapsed * 0.6) * 3;
+        rimLight.position.x = Math.sin(elapsed * 0.5) * 3;
+        rimLight.intensity = 2 + Math.sin(elapsed * 2) * 0.4;
+        accentLight.position.z = Math.cos(elapsed * 0.7) * 3;
 
         renderer.render(scene, camera);
     }
 
     animate();
+    console.log('✅ Animation loop started');
 
     // RESIZE HANDLER
     window.addEventListener('resize', () => {
@@ -380,10 +690,7 @@ function initTypingEffect() {
     if (!typedText) return;
 
     const titles = ['AI Engineer', 'Web Developer', 'Problem Solver', 'Tech Explorer'];
-    let titleIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    let speed = 100;
+    let titleIndex = 0, charIndex = 0, isDeleting = false, speed = 100;
 
     function type() {
         const current = titles[titleIndex];
