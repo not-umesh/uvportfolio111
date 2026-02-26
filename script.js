@@ -25,7 +25,7 @@ function init3DScene() {
 
     // Scene
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a0a0f, 10, 35);
+    // Removed thick fog for a clearer, sharper aesthetic
 
     // Camera
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -68,6 +68,7 @@ function init3DScene() {
 
     // Load TVS Apache Bike Model
     let bikeModel = null;
+    let sharedMaterials = [];
     const loader = new THREE.GLTFLoader();
 
     console.log('🏍️ Loading Apache bike model...');
@@ -91,43 +92,45 @@ function init3DScene() {
                 { wire: 0x00ff88, base: 0x001a0d, name: 'Cyan' }      // Cyan
             ];
 
+            // Create shared materials to drastically reduce draw calls and memory
+            sharedMaterials = colors.map(c => ({
+                base: new THREE.MeshStandardMaterial({
+                    color: c.base,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                    transparent: true,
+                    opacity: 0.3,
+                    emissive: new THREE.Color(c.wire),
+                    emissiveIntensity: 1.0
+                }),
+                wire: new THREE.LineBasicMaterial({
+                    color: c.wire,
+                    transparent: true,
+                    opacity: 0.8
+                })
+            }));
+
             let meshIndex = 0;
 
             bikeModel.traverse((child) => {
                 if (child.isMesh) {
-                    // Cycle through colors - change color every few meshes
+                    // Cycle through colors
                     const colorIndex = Math.floor(meshIndex / 5) % colors.length;
-                    const { wire, base, name } = colors[colorIndex];
+                    const mats = sharedMaterials[colorIndex];
 
-                    console.log(`Mesh ${meshIndex}: ${name}`);
+                    // Apply shared material
+                    child.material = mats.base;
 
-                    // Apply holographic material
-                    child.material = new THREE.MeshStandardMaterial({
-                        color: base,
-                        metalness: 0.9,
-                        roughness: 0.1,
-                        transparent: true,
-                        transparent: true,
-                        opacity: 0.3, // Increased visibility
-                        emissive: new THREE.Color(wire),
-                        emissiveIntensity: 1.0 // Much brighter
-                    });
-
-                    // Apply wireframe
+                    // Apply shared wireframe material
                     const wireGeo = new THREE.EdgesGeometry(child.geometry);
-                    const wireMat = new THREE.LineBasicMaterial({
-                        color: wire,
-                        transparent: true,
-                        opacity: 0.8 // More visible wireframe
-                    });
-                    const wireframe = new THREE.LineSegments(wireGeo, wireMat);
+                    const wireframe = new THREE.LineSegments(wireGeo, mats.wire);
                     child.add(wireframe);
 
                     meshIndex++;
                 }
             });
 
-            console.log(`✅ Applied colors to ${meshIndex} meshes`);
+            console.log(`✅ Applied shared materials to ${meshIndex} meshes`);
 
             // Position bike - bigger, centered, front-facing
             bikeModel.scale.set(5.5, 5.5, 5.5); // Larger
@@ -147,265 +150,49 @@ function init3DScene() {
         }
     );
 
-    // SPACE - STARFIELD BACKGROUND
-    const starsGeo = new THREE.BufferGeometry();
-    const starCount = 800;
-    const starPositions = new Float32Array(starCount * 3);
-    const starColors = new Float32Array(starCount * 3);
+    // === NEW ATTRACTIVE BACKGROUND: CYBERPUNK/SYNTHWAVE THEME ===
 
-    for (let i = 0; i < starCount; i++) {
-        const i3 = i * 3;
-        // Distribute stars in a sphere around the scene
-        const radius = 20 + Math.random() * 30;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.random() * Math.PI;
+    // 1. Moving Grid Floor
+    const gridHelper = new THREE.GridHelper(60, 60, cyanGlow, 0x1a1a2e);
+    gridHelper.position.y = -2.5;
+    gridHelper.material.opacity = 0.4;
+    gridHelper.material.transparent = true;
+    scene.add(gridHelper);
 
-        starPositions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-        starPositions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-        starPositions[i3 + 2] = radius * Math.cos(phi);
+    // 2. High-Tech Glowing Data Particles
+    const particleCount = 250;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePos = new Float32Array(particleCount * 3);
+    const particleColors = new Float32Array(particleCount * 3);
 
-        // Various star colors (white, blue, bronze)
-        const colorChoice = Math.random();
-        if (colorChoice < 0.6) {
-            starColors[i3] = 1; starColors[i3 + 1] = 1; starColors[i3 + 2] = 1; // White
-        } else if (colorChoice < 0.8) {
-            starColors[i3] = 0; starColors[i3 + 1] = 0.7; starColors[i3 + 2] = 1; // Blue
-        } else {
-            starColors[i3] = 0.8; starColors[i3 + 1] = 0.5; starColors[i3 + 2] = 0.2; // Bronze
-        }
-    }
-
-    starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    starsGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-
-    const starsMat = new THREE.PointsMaterial({
-        size: 0.05,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
-    });
-
-    const stars = new THREE.Points(starsGeo, starsMat);
-    scene.add(stars);
-
-    // PLANETS - Floating spheres
-    const planets = [];
-    for (let i = 0; i < 3; i++) {
-        const planetSize = 0.4 + Math.random() * 0.3;
-        const planetGeo = new THREE.SphereGeometry(planetSize, 16, 16);
-        const planetMat = new THREE.MeshStandardMaterial({
-            color: i === 0 ? bronzeColor : (i === 1 ? cyanGlow : redAccent),
-            metalness: 0.7,
-            roughness: 0.3,
-            transparent: true,
-            opacity: 0.4,
-            emissive: i === 0 ? bronzeColor : (i === 1 ? cyanGlow : redAccent),
-            emissiveIntensity: 0.3
-        });
-        const planet = new THREE.Mesh(planetGeo, planetMat);
-
-        // Add rings to some planets
-        if (i === 1) {
-            const ringGeo = new THREE.TorusGeometry(planetSize * 1.5, 0.02, 8, 32);
-            const ringMat = new THREE.MeshBasicMaterial({
-                color: cyanGlow,
-                transparent: true,
-                opacity: 0.3,
-                wireframe: true
-            });
-            const ring = new THREE.Mesh(ringGeo, ringMat);
-            ring.rotation.x = Math.PI / 2 + 0.3;
-            planet.add(ring);
-        }
-
-        planet.position.set(
-            -6 + i * 5,
-            1 + Math.random() * 2,
-            -8 - Math.random() * 4
-        );
-
-        planet.userData.rotSpeed = 0.001 + Math.random() * 0.002;
-        planet.userData.floatSpeed = 0.3 + Math.random() * 0.3;
-        planets.push(planet);
-        scene.add(planet);
-    }
-
-    // ASTEROID BELT - Floating rocks
-    const asteroids = [];
-    for (let i = 0; i < 15; i++) {
-        const asteroidSize = 0.08 + Math.random() * 0.12;
-        const asteroidGeo = new THREE.DodecahedronGeometry(asteroidSize, 0);
-        const asteroidMat = new THREE.MeshBasicMaterial({
-            color: 0x444444,
-            transparent: true,
-            opacity: 0.3,
-            wireframe: true
-        });
-        const asteroid = new THREE.Mesh(asteroidGeo, asteroidMat);
-
-        // Position in a belt around the bike
-        const angle = (i / 15) * Math.PI * 2;
-        const distance = 4 + Math.random() * 2;
-        asteroid.position.set(
-            Math.cos(angle) * distance,
-            -0.5 + Math.random() * 3,
-            Math.sin(angle) * distance - 2
-        );
-
-        asteroid.rotation.set(
-            Math.random() * Math.PI,
-            Math.random() * Math.PI,
-            Math.random() * Math.PI
-        );
-
-        asteroid.userData.rotSpeed = {
-            x: (Math.random() - 0.5) * 0.02,
-            y: (Math.random() - 0.5) * 0.02,
-            z: (Math.random() - 0.5) * 0.02
-        };
-
-        asteroids.push(asteroid);
-        scene.add(asteroid);
-    }
-
-    // NEBULA PARTICLES - Colorful space dust
-    const nebulaCount = 300;
-    const nebulaPositions = new Float32Array(nebulaCount * 3);
-    const nebulaColors = new Float32Array(nebulaCount * 3);
-
-    for (let i = 0; i < nebulaCount; i++) {
-        const i3 = i * 3;
-        nebulaPositions[i3] = (Math.random() - 0.5) * 25;
-        nebulaPositions[i3 + 1] = (Math.random() - 0.5) * 12;
-        nebulaPositions[i3 + 2] = (Math.random() - 0.5) * 15;
-
-        // Purple, cyan, bronze nebula colors
-        const colorPick = Math.random();
-        if (colorPick < 0.33) {
-            nebulaColors[i3] = 0.5; nebulaColors[i3 + 1] = 0; nebulaColors[i3 + 2] = 1; // Purple
-        } else if (colorPick < 0.66) {
-            nebulaColors[i3] = 0; nebulaColors[i3 + 1] = 1; nebulaColors[i3 + 2] = 1; // Cyan
-        } else {
-            nebulaColors[i3] = 1; nebulaColors[i3 + 1] = 0.6; nebulaColors[i3 + 2] = 0; // Orange
-        }
-    }
-
-    const nebulaGeo = new THREE.BufferGeometry();
-    nebulaGeo.setAttribute('position', new THREE.BufferAttribute(nebulaPositions, 3));
-    nebulaGeo.setAttribute('color', new THREE.BufferAttribute(nebulaColors, 3));
-
-    const nebulaMat = new THREE.PointsMaterial({
-        size: 0.15,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.4,
-        blending: THREE.AdditiveBlending
-    });
-
-    const nebula = new THREE.Points(nebulaGeo, nebulaMat);
-    scene.add(nebula);
-
-    // GLOWING ORBS - Energy spheres
-    const orbs = [];
-    for (let i = 0; i < 4; i++) {
-        const orbGeo = new THREE.SphereGeometry(0.15, 16, 16);
-        const orbMat = new THREE.MeshBasicMaterial({
-            color: i % 2 === 0 ? cyanGlow : bronzeColor,
-            transparent: true,
-            opacity: 0.5
-        });
-        const orb = new THREE.Mesh(orbGeo, orbMat);
-
-        orb.position.set(
-            (Math.random() - 0.5) * 12,
-            (Math.random() - 0.5) * 6,
-            -3 - Math.random() * 3
-        );
-
-        // Add glow
-        const glowGeo = new THREE.SphereGeometry(0.25, 16, 16);
-        const glowMat = new THREE.MeshBasicMaterial({
-            color: i % 2 === 0 ? cyanGlow : bronzeColor,
-            transparent: true,
-            opacity: 0.2,
-            side: THREE.BackSide
-        });
-        const glow = new THREE.Mesh(glowGeo, glowMat);
-        orb.add(glow);
-
-        orb.userData.floatSpeed = 0.4 + Math.random() * 0.4;
-        orbs.push(orb);
-        scene.add(orb);
-    }
-
-    // MINIMAL PARTICLES - Subtle sparkle
-    const particleCount = 150;
-    const positions = new Float32Array(particleCount * 3);
+    const colorOptions = [cyanGlow, redAccent, bronzeColor, 0xaa00ff];
 
     for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 18;
-        positions[i3 + 1] = (Math.random() - 0.5) * 6;
-        positions[i3 + 2] = (Math.random() - 0.5) * 8;
+        particlePos[i3] = (Math.random() - 0.5) * 40; // x spread
+        particlePos[i3 + 1] = (Math.random() - 0.5) * 30; // y spread
+        particlePos[i3 + 2] = (Math.random() - 0.5) * 40; // z spread
+
+        const c = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+        particleColors[i3] = c.r;
+        particleColors[i3 + 1] = c.g;
+        particleColors[i3 + 2] = c.b;
     }
 
-    const particleGeo = new THREE.BufferGeometry();
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+    particleGeo.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
 
     const particleMat = new THREE.PointsMaterial({
-        size: 0.025,
-        color: bronzeColor,
+        size: 0.12,
+        vertexColors: true,
         transparent: true,
-        opacity: 0.4,
-        blending: THREE.AdditiveBlending
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true
     });
 
     const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
-
-    // GEOMETRIC ACCENT SHAPES - Minimal modern feel
-    const geometries = [];
-    for (let i = 0; i < 4; i++) {
-        const size = 0.25 + Math.random() * 0.15;
-        const geo = new THREE.OctahedronGeometry(size, 0);
-        const mat = new THREE.MeshBasicMaterial({
-            color: i % 2 === 0 ? bronzeColor : redAccent,
-            transparent: true,
-            opacity: 0.2,
-            wireframe: true
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(
-            (Math.random() - 0.5) * 12,
-            (Math.random() - 0.5) * 5,
-            -2 - Math.random() * 3
-        );
-        mesh.rotation.set(
-            Math.random() * Math.PI,
-            Math.random() * Math.PI,
-            Math.random() * Math.PI
-        );
-        mesh.userData.rotSpeed = {
-            x: (Math.random() - 0.5) * 0.008,
-            y: (Math.random() - 0.5) * 0.008
-        };
-        geometries.push(mesh);
-        scene.add(mesh);
-    }
-
-    // SINGLE ACCENT RING - Depth element
-    const accentRingGeo = new THREE.TorusGeometry(2.8, 0.05, 6, 24);
-    const accentRingMat = new THREE.MeshBasicMaterial({
-        color: cyanGlow,
-        transparent: true,
-        opacity: 0.18,
-        wireframe: true
-    });
-    const accentRing = new THREE.Mesh(accentRingGeo, accentRingMat);
-    accentRing.position.set(2, 0, -3.5);
-    accentRing.rotation.x = Math.PI / 2;
-    scene.add(accentRing);
 
     // CURSOR TRACKING
     let mouseX = 0, mouseY = 0;
@@ -528,75 +315,30 @@ function init3DScene() {
             const nextColor = new THREE.Color(colorPalette[nextColorIdx]);
             const mixedColor = currentColor.clone().lerp(nextColor, mixAmount);
 
-            // Pulsing glow intensity - dim and bright
+            // Pulse glow intensity
             const glowPulse = 0.2 + Math.sin(elapsed * 1.5) * 0.15; // 0.05 to 0.35
 
-            // Apply to all bike meshes
-            bikeModel.traverse((child) => {
-                if (child.isMesh && child.material) {
-                    // Smoothly change color
-                    child.material.emissive.copy(mixedColor);
+            // Apply updates to the 5 shared materials instead of traversing all meshes
+            sharedMaterials.forEach(mats => {
+                // Smoothly change color
+                mats.base.emissive.copy(mixedColor);
+                // Pulse glow intensity
+                mats.base.emissiveIntensity = glowPulse;
+                // Pulse opacity slightly
+                mats.base.opacity = 0.08 + Math.sin(elapsed * 1.2) * 0.03;
 
-                    // Pulse glow intensity
-                    child.material.emissiveIntensity = glowPulse;
-
-                    // Pulse opacity slightly
-                    child.material.opacity = 0.08 + Math.sin(elapsed * 1.2) * 0.03;
-
-                    // Pulse wireframe
-                    if (child.children[0] && child.children[0].material) {
-                        child.children[0].material.color.copy(mixedColor);
-                        child.children[0].material.opacity = 0.5 + Math.sin(elapsed * 2) * 0.2;
-                    }
-                }
+                // Pulse wireframe
+                mats.wire.color.copy(mixedColor);
+                mats.wire.opacity = 0.5 + Math.sin(elapsed * 2) * 0.2;
             });
-        }
+        } // Closing brace for if(bikeModel)
 
-        // Subtle particle movement
-        particles.rotation.y = elapsed * 0.02;
+        // Animate Grid - moving forward effect
+        gridHelper.position.z = (elapsed * 2) % 1;
 
-        // Animate stars - slow rotation
-        stars.rotation.y = elapsed * 0.01;
-        stars.rotation.x = Math.sin(elapsed * 0.05) * 0.1;
-
-        // Animate planets
-        planets.forEach((planet, i) => {
-            planet.rotation.y += planet.userData.rotSpeed;
-            planet.position.y += Math.sin(elapsed * planet.userData.floatSpeed + i) * 0.003;
-        });
-
-        // Animate asteroids
-        asteroids.forEach((asteroid) => {
-            asteroid.rotation.x += asteroid.userData.rotSpeed.x;
-            asteroid.rotation.y += asteroid.userData.rotSpeed.y;
-            asteroid.rotation.z += asteroid.userData.rotSpeed.z;
-        });
-
-        // Animate nebula particles
-        nebula.rotation.y = elapsed * 0.015;
-        nebula.rotation.x = Math.sin(elapsed * 0.08) * 0.05;
-
-        // Animate orbs - floating and pulsing
-        orbs.forEach((orb, i) => {
-            orb.position.y += Math.sin(elapsed * orb.userData.floatSpeed + i) * 0.005;
-            const scale = 1 + Math.sin(elapsed * 2 + i) * 0.1;
-            orb.scale.set(scale, scale, scale);
-            orb.children[0].material.opacity = 0.2 + Math.sin(elapsed * 3 + i) * 0.1;
-        });
-
-        // Animate geometries
-        geometries.forEach((geo) => {
-            geo.rotation.x += geo.userData.rotSpeed.x;
-            geo.rotation.y += geo.userData.rotSpeed.y;
-        });
-
-        // Animate accent ring
-        accentRing.rotation.z = elapsed * 0.25;
-        accentRing.scale.set(
-            1 + Math.sin(elapsed * 0.8) * 0.04,
-            1 + Math.sin(elapsed * 0.8) * 0.04,
-            1
-        );
+        // Animate new data particles
+        particles.rotation.y = elapsed * 0.05;
+        particles.rotation.x = Math.sin(elapsed * 0.1) * 0.05;
 
         // Camera movement
         camera.position.x = 4 + mouseX * 1.5;

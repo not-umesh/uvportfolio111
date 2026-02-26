@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Three.js & GSAP -->
@@ -175,7 +175,7 @@
                 <div class="about-text">
                     <p class="about-description">
                         Hey there! I'm Umesh, a curious and driven Computer Science enthusiast specializing in
-                        Artificial Intelligence. With a strong foundation in B.Tech CSE (AI), I spend my days
+                        Artificial Intelligence. With a strong foundation in my B.Tech CSE (AI) studies, I spend my days
                         diving deep into the fascinating world of machine learning, neural networks, and
                         intelligent systems.
                     </p>
@@ -317,18 +317,18 @@
 
             <div class="projects-grid">
                 <!-- Project 1: Disaster Management System -->
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/not-umesh/Disaster_Management_System" target="_blank"
-                                    class="project-link">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                            </div>
+                <a href="https://github.com/not-umesh/Disaster_Management_System" target="_blank" class="project-card"
+                    data-project-type="App Development">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fas fa-bolt"></i> Dart</span>
+                            <span class="overlay-tag"><i class="fas fa-mobile"></i> Flutter</span>
                         </div>
                         <div class="project-icon">
                             <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>App Development</span>
                         </div>
                     </div>
                     <div class="project-content">
@@ -337,57 +337,54 @@
                             A comprehensive Flutter-based mobile application for disaster management with
                             integrated AI chatbot for emergency assistance, real-time alerts, and crisis coordination.
                         </p>
-                        <div class="project-tags">
-                            <span class="tag">Dart</span>
-                            <span class="tag">Flutter</span>
-                            <span class="tag">AI Chatbot</span>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
                         </div>
                     </div>
-                </article>
+                </a>
 
                 <!-- Project 2: Disaster Management Chatbot (Backend) -->
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/not-umesh/Disaster_Management_chatbot" target="_blank"
-                                    class="project-link">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                            </div>
+                <a href="https://github.com/not-umesh/Disaster_Management_chatbot" target="_blank" class="project-card"
+                    data-project-type="Backend Engine">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fab fa-java"></i> Java</span>
+                            <span class="overlay-tag"><i class="fas fa-server"></i> API</span>
                         </div>
                         <div class="project-icon">
                             <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>Backend Engine</span>
                         </div>
                     </div>
                     <div class="project-content">
                         <h3 class="project-title">AI Disaster Chatbot Backend</h3>
                         <p class="project-description">
                             Java-based backend service powering the AI chatbot integrated in the Disaster Management
-                            System.
-                            Provides intelligent responses for emergency situations and crisis guidance.
+                            System. Provides intelligent responses for emergency situations and crisis guidance.
                         </p>
-                        <div class="project-tags">
-                            <span class="tag">Java</span>
-                            <span class="tag">Backend API</span>
-                            <span class="tag">NLP</span>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
                         </div>
                     </div>
-                </article>
+                </a>
 
                 <!-- Project 3: AI Handwritten Math Solver -->
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/not-umesh/AI_HandWritten_Math_Solver_fullstack"
-                                    target="_blank" class="project-link">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                            </div>
+                <a href="https://github.com/not-umesh/AI_HandWritten_Math_Solver_fullstack" target="_blank"
+                    class="project-card" data-project-type="Full Stack AI">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fab fa-js"></i> JS</span>
+                            <span class="overlay-tag"><i class="fas fa-brain"></i> AI/ML</span>
                         </div>
                         <div class="project-icon">
                             <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>Full Stack AI</span>
                         </div>
                     </div>
                     <div class="project-content">
@@ -396,56 +393,54 @@
                             Full-stack AI application that recognizes handwritten mathematical expressions
                             and solves them automatically using computer vision and machine learning.
                         </p>
-                        <div class="project-tags">
-                            <span class="tag">JavaScript</span>
-                            <span class="tag">AI/ML</span>
-                            <span class="tag">Full Stack</span>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
                         </div>
                     </div>
-                </article>
+                </a>
 
                 <!-- Project 4: MindBuddy Mental Health Chatbot -->
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/not-umesh/MindBuddy-ai_mentalhealth_chatbot" target="_blank"
-                                    class="project-link">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                            </div>
+                <a href="https://github.com/not-umesh/MindBuddy-ai_mentalhealth_chatbot" target="_blank"
+                    class="project-card" data-project-type="AI Chatbot App">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fas fa-bolt"></i> Dart</span>
+                            <span class="overlay-tag"><i class="fas fa-mobile"></i> Flutter</span>
                         </div>
                         <div class="project-icon">
                             <i class="fas fa-heart"></i>
                         </div>
+                        <div class="project-hover-popup">
+                            <span>AI Chatbot App</span>
+                        </div>
                     </div>
                     <div class="project-content">
-                        <h3 class="project-title">MindBuddy - AI Mental Health Chatbot</h3>
+                        <h3 class="project-title">MindBuddy Chatbot</h3>
                         <p class="project-description">
                             An empathetic AI-powered mental health companion built with Flutter, providing
                             supportive conversations and wellness resources for emotional well-being.
                         </p>
-                        <div class="project-tags">
-                            <span class="tag">Dart</span>
-                            <span class="tag">Flutter</span>
-                            <span class="tag">AI Chatbot</span>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
                         </div>
                     </div>
-                </article>
+                </a>
 
                 <!-- Project 5: DeepFake Detector -->
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/not-umesh/DeepFakeDetector" target="_blank"
-                                    class="project-link">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                            </div>
+                <a href="https://github.com/not-umesh/DeepFakeDetector" target="_blank" class="project-card"
+                    data-project-type="Security & ML">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fab fa-python"></i> Python</span>
+                            <span class="overlay-tag"><i class="fas fa-shield-alt"></i> Security</span>
                         </div>
                         <div class="project-icon">
                             <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>Security & ML</span>
                         </div>
                     </div>
                     <div class="project-content">
@@ -454,14 +449,124 @@
                             AI-powered web application that detects deepfake media with advanced security features
                             including rate limiting, input validation, and secure API integration for accurate analysis.
                         </p>
-                        <div class="project-tags">
-                            <span class="tag">Python</span>
-                            <span class="tag">Flask</span>
-                            <span class="tag">AI/ML</span>
-                            <span class="tag">Security</span>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
                         </div>
                     </div>
-                </article>
+                </a>
+
+                <!-- Project 6: Real-Time Network IDS -->
+                <a href="https://github.com/not-umesh" target="_blank" class="project-card"
+                    data-project-type="Cybersecurity & AI">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fab fa-python"></i> Python</span>
+                            <span class="overlay-tag"><i class="fas fa-network-wired"></i> CoreML</span>
+                        </div>
+                        <div class="project-icon">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>Cybersecurity & AI</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Real-Time Network IDS</h3>
+                        <p class="project-description">
+                            Suricata-backed real-time Machine Learning Network Intrusion Detection System optimized for
+                            Apple Silicon with sub-1ms CoreML inference.
+                        </p>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 7: Kisan-Mitra Add -->
+                <a href="https://github.com/not-umesh/kishan-mitra" target="_blank" class="project-card"
+                    data-project-type="Agritech & AI">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fab fa-react"></i> React Native</span>
+                            <span class="overlay-tag"><i class="fab fa-node-js"></i> Node.js</span>
+                        </div>
+                        <div class="project-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>Agritech & AI</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Kisan-Mitra App</h3>
+                        <p class="project-description">
+                            A free-tier intelligent mobile app providing Indian farmers with live weather updates,
+                            mandi prices, and AI-powered agricultural advice.
+                        </p>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 8: Stock Market Dashboard -->
+                <a href="https://github.com/not-umesh" target="_blank" class="project-card"
+                    data-project-type="Full Stack Web App">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fab fa-react"></i> Next.js</span>
+                            <span class="overlay-tag"><i class="fas fa-wind"></i> Tailwind</span>
+                        </div>
+                        <div class="project-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>Full Stack Web App</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Real-Time Stock Analytics</h3>
+                        <p class="project-description">
+                            A real-time stock market web application built with Next.js and Tailwind CSS featuring
+                            interactive financial charts and AI-driven market insights.
+                        </p>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 9: Voice-to-Notes App -->
+                <a href="https://github.com/not-umesh" target="_blank" class="project-card"
+                    data-project-type="Mobile AI App">
+                    <div class="project-visual">
+                        <div class="project-tags-overlay">
+                            <span class="overlay-tag"><i class="fab fa-react"></i> React Native</span>
+                            <span class="overlay-tag"><i class="fas fa-brain"></i> Whisper AI</span>
+                        </div>
+                        <div class="project-icon">
+                            <i class="fas fa-microphone-lines"></i>
+                        </div>
+                        <div class="project-hover-popup">
+                            <span>Mobile AI App</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Voice-to-Notes Engine</h3>
+                        <p class="project-description">
+                            An intelligent React Native mobile app that uses Whisper AI to transcribe and summarize
+                            classroom lectures into organized, actionable study notes.
+                        </p>
+                        <div class="project-actions">
+                            <span class="action-btn primary-action">View Project</span>
+                            <span class="action-btn secondary-action">GitHub <i class="fab fa-github"></i></span>
+                        </div>
+                    </div>
+                </a>
             </div>
 
             <div class="projects-cta">
