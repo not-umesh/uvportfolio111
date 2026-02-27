@@ -96,9 +96,9 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1;
-    pointer-events: auto;
-    /* Allows interaction with Spline if not covered by other elements */
+    z-index: 0;
+    pointer-events: none;
+    /* Clicks pass through */
 }
 
 spline-viewer {
