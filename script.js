@@ -4,11 +4,23 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Portfolio initializing...');
-    console.log('🚀 Portfolio initializing...');
     initTypingEffect();
     initNavbar();
     initSmoothScrollAnimations();
     initSmoothScroll();
+
+    // Hide Spline Watermark
+    const splineViewer = document.querySelector('spline-viewer');
+    if (splineViewer) {
+        const interval = setInterval(() => {
+            const logo = splineViewer.shadowRoot ? splineViewer.shadowRoot.querySelector('#logo') : null;
+            if (logo) {
+                logo.remove();
+                clearInterval(interval);
+            }
+        }, 100);
+        setTimeout(() => clearInterval(interval), 10000); // safety fallback
+    }
 });
 
 /* ============================================
