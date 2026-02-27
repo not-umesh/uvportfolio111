@@ -9,32 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScrollAnimations();
     initSmoothScroll();
 
-    // Hide Spline Watermark
-    const splineViewer = document.querySelector('spline-viewer');
-    if (splineViewer) {
-        const interval = setInterval(() => {
-            const logo = splineViewer.shadowRoot ? splineViewer.shadowRoot.querySelector('#logo') : null;
-            if (logo) {
-                logo.remove();
-                clearInterval(interval);
-            }
-        }, 100);
-        setTimeout(() => clearInterval(interval), 10000); // safety fallback
-
-        // Force Mouse Parallax Tracking
-        window.addEventListener('pointermove', (e) => {
-            if (splineViewer.shadowRoot) {
-                const canvas = splineViewer.shadowRoot.querySelector('canvas');
-                if (canvas) {
-                    canvas.dispatchEvent(new PointerEvent('pointermove', {
-                        clientX: e.clientX,
-                        clientY: e.clientY,
-                        bubbles: true
-                    }));
-                }
-            }
-        });
-    }
 
     // Holographic 'Hollow' Structure effect for the 3D Bike
     const bikeViewer = document.getElementById('hero-bike');
