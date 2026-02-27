@@ -16,14 +16,20 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Spline Viewer & GSAP -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.61/build/spline-viewer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <!-- Model Viewer for 3D Bike -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-    <link rel="stylesheet" href="styles.css?v=6.0">
+    <link rel="stylesheet" href="styles.css?v=8.0">
 </head>
 
 <body>
+    <!-- Spline 3D Background Container -->
+    <div id="canvas-container">
+        <spline-viewer url="https://prod.spline.design/DRaTr6RCQmgza8wl/scene.splinecode?v=8"
+            events-target="global"></spline-viewer>
+    </div>
 
     <!-- Navigation -->
     <nav class="navbar">
@@ -607,7 +613,7 @@
         </div>
     </footer>
 
-    <script src="script.js?v=6.0"></script>
+    <script src="script.js?v=8.0"></script>
 </body>
 
 </html>
