@@ -89,15 +89,21 @@ body {
     border-radius: 3px;
 }
 
-/* 3D Canvas (Restored for Garage Theme) */
+/* Spline 3D Background Container */
 #canvas-container {
     position: fixed;
     top: 0;
     left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: auto;
+    /* Allows interaction with Spline if not covered by other elements */
+}
+
+spline-viewer {
     width: 100%;
     height: 100%;
-    z-index: 0;
-    pointer-events: auto;
 }
 
 /* Container */
