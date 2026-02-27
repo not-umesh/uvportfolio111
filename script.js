@@ -20,6 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 100);
         setTimeout(() => clearInterval(interval), 10000); // safety fallback
+
+        // Force Mouse Parallax Tracking
+        window.addEventListener('pointermove', (e) => {
+            if (splineViewer.shadowRoot) {
+                const canvas = splineViewer.shadowRoot.querySelector('canvas');
+                if (canvas) {
+                    canvas.dispatchEvent(new PointerEvent('pointermove', {
+                        clientX: e.clientX,
+                        clientY: e.clientY,
+                        bubbles: true
+                    }));
+                }
+            }
+        });
     }
 });
 

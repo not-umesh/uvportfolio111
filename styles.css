@@ -248,7 +248,7 @@ spline-viewer {
     z-index: 1;
 }
 
-/* 3D Bike Overlay */
+/* 3D Bike Overlay - Holographic Effect */
 #hero-bike {
     position: absolute;
     left: -2vw;
@@ -257,13 +257,52 @@ spline-viewer {
     height: 60vh;
     z-index: 0;
     --poster-color: transparent;
-    pointer-events: auto;
-    opacity: 0.55;
+    pointer-events: none;
+    /* Let clicks pass through the bike */
+    opacity: 0.75;
+    mix-blend-mode: screen;
+    animation: hologram-color 15s infinite linear, hologram-flicker 5s infinite;
+}
+
+@keyframes hologram-color {
+    0% {
+        filter: drop-shadow(0 0 15px cyan) sepia(1) hue-rotate(0deg) saturate(400%) brightness(1.2) contrast(1.5);
+    }
+
+    100% {
+        filter: drop-shadow(0 0 15px cyan) sepia(1) hue-rotate(360deg) saturate(400%) brightness(1.2) contrast(1.5);
+    }
+}
+
+@keyframes hologram-flicker {
+
+    0%,
+    100% {
+        opacity: 0.75;
+    }
+
+    5%,
+    9% {
+        opacity: 0.3;
+    }
+
+    7%,
+    11% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 0.65;
+    }
+
+    55% {
+        opacity: 0.8;
+    }
 }
 
 @media (max-width: 968px) {
     #hero-bike {
-        opacity: 0.3;
+        opacity: 0.5;
         width: 100vw;
         height: 50vh;
         left: 0;
