@@ -19,7 +19,9 @@
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.61/build/spline-viewer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <link rel="stylesheet" href="styles.css?v=4.0">
+    <!-- Model Viewer for 3D Bike -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <link rel="stylesheet" href="styles.css?v=5.0">
 </head>
 
 <body>
@@ -51,6 +53,11 @@
 
     <!-- Hero Section -->
     <section id="hero" class="hero">
+        <!-- 3D Bike Model Overlay -->
+        <model-viewer id="hero-bike"
+            src="https://raw.githubusercontent.com/not-umesh/uvportfolio111/main/apache-bike-model.glb" auto-rotate
+            rotation-per-second="15deg" camera-controls disable-zoom interaction-prompt="none"></model-viewer>
+
         <div class="hero-content">
             <div class="hero-text">
                 <p class="hero-greeting">Hello, I'm</p>
@@ -606,7 +613,7 @@
         </div>
     </footer>
 
-    <script src="script.js?v=4.0"></script>
+    <script src="script.js?v=5.0"></script>
 </body>
 
 </html>
