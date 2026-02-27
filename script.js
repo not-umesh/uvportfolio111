@@ -35,6 +35,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Holographic 'Hollow' Structure effect for the 3D Bike
+    const bikeViewer = document.getElementById('hero-bike');
+    if (bikeViewer) {
+        bikeViewer.addEventListener('load', () => {
+            if (bikeViewer.model && bikeViewer.model.materials) {
+                bikeViewer.model.materials.forEach(material => {
+                    // Make material transparent
+                    material.setAlphaMode('BLEND');
+                    // Set base color to translucent cyan to simulate a wireframe/hologram structure
+                    if (material.pbrMetallicRoughness) {
+                        material.pbrMetallicRoughness.setBaseColorFactor([0.0, 1.0, 1.0, 0.1]);
+                        material.pbrMetallicRoughness.setMetallicFactor(0.5);
+                        material.pbrMetallicRoughness.setRoughnessFactor(0.1);
+                    }
+                });
+            }
+        });
+    }
 });
 
 /* ============================================
